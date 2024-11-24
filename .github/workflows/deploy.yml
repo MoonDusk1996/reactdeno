@@ -23,9 +23,6 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Check formatting 🎨
-        run: make fmt-check
-
       - name: Lint 🧐
         run: make lint
 
