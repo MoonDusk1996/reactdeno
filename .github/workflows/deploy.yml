@@ -1,0 +1,40 @@
+name: Deno CI
+
+on:
+  push:
+    branches: main
+    paths-ignore:
+      - README.md
+      
+jobs:
+  build-deploy:
+    name: Test, build and deploy app
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@master
+        with:
+          persist-credentials: false
+
+      - name: Set up Deno ⚙️ 🦕
+        uses: denolib/setup-deno@v2
+        with:
+          deno-version: v1.x
+
+      - name: Check formatting 🎨
+        run: make fmt-check
+
+      - name: Lint 🧐
+        run: make lint
+
+      - name: Build 🏗️
+        run: make build
+
+      - name: Deploy to GitHub Pages 🚀
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build
