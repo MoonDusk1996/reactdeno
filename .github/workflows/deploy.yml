@@ -1,37 +1,44 @@
-name: Deno CI
-
+name: Deploy
 on:
   push:
     branches: main
-    paths-ignore:
-      - README.md
-      
-jobs:
-  build-deploy:
-    name: Test, build and deploy app
+  pull_request:
+    branches: main
 
+jobs:
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write # Needed for auth with Deno Deploy
+      contents: read # Needed to clone the repository
+
     steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@master
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install Deno
+        uses: denoland/setup-deno@v2
         with:
-          persist-credentials: false
+          deno-version: v2.x
 
-      - name: Set up Deno ⚙️ 🦕
-        uses: denolib/setup-deno@v2
+      - name: Install Node.js
+        uses: actions/setup-node@v4
         with:
-          deno-version: v1.x
+          node-version: lts/*
 
-      - name: Lint 🧐
-        run: deno task lint
+      - name: Install step
+        run: "npm install"
 
-      - name: Build 🏗️
-        run: deno task build
+      - name: Build step
+        run: "npm run build"
 
-      - name: Deploy to GitHub Pages 🚀
-        if: ${{ github.event_name != 'pull_request' }}
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload to Deno Deploy
+        uses: denoland/deployctl@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: build
+          project: "dusk-reactdeno-14"
+          entrypoint: "https://deno.land/std@0.217.0/http/file_server.ts"
+          root: "dist"
+          
+          
