@@ -24,10 +24,10 @@ jobs:
           deno-version: v1.x
 
       - name: Lint 🧐
-        run: make lint
+        run: deno task lint
 
       - name: Build 🏗️
-        run: make build
+        run: deno task build
 
       - name: Deploy to GitHub Pages 🚀
         if: ${{ github.event_name != 'pull_request' }}
